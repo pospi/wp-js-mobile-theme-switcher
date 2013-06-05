@@ -42,6 +42,22 @@ abstract class JSMobileThemeSwitcher
 			add_filter('stylesheet', array($cls, 'handleStylesheet'));
 		}
 
+		// inject querystring parameter into as many link methods as we can when using it for state
+		if (get_option('jsmts_state_method') == 'qs') {
+			add_filter('post_link', array($cls, 'passPermalinkState'));
+			add_filter('post_type_link', array($cls, 'passPermalinkState'));
+			add_filter('page_link', array($cls, 'passPermalinkState'));
+			add_filter('attachment_link', array($cls, 'passPermalinkState'));
+			add_filter('year_link', array($cls, 'passPermalinkState'));
+			add_filter('month_link', array($cls, 'passPermalinkState'));
+			add_filter('day_link', array($cls, 'passPermalinkState'));
+			add_filter('search_link', array($cls, 'passPermalinkState'));
+			add_filter('post_type_archive_link', array($cls, 'passPermalinkState'));
+			add_filter('get_pagenum_link', array($cls, 'passPermalinkState'));
+			add_filter('get_comments_pagenum_link', array($cls, 'passPermalinkState'));
+		}
+
+
 		// add configuration UI
 		add_action('admin_menu', array($cls, 'setupAdminScreens'));
 		add_action('load-appearance_page_js-mobile-themes', array($cls, 'handleOptions'));
@@ -116,14 +132,8 @@ abstract class JSMobileThemeSwitcher
 		}
 
 		// check to see if we're overriding the default theme
-		switch ($opts['state_method']) {
-			case 'c':
-				$themeOverride = isset($_COOKIE[$opts['state_key']]) ? $_COOKIE[$opts['state_key']] : null;
-				break;
-			default:
-				$themeOverride = isset($_GET[$opts['state_key']]) ? $_GET[$opts['state_key']] : null;
-				break;
-		}
+		$themeOverride = self::getPersistedOverrideValue();
+
 		switch ($themeOverride) {
 			case self::FLAG_MOBILE:
 				$themeOverride = $opts['mobile_theme'];
@@ -148,6 +158,32 @@ abstract class JSMobileThemeSwitcher
 		}
 
 		return $themes[$themeOverride];
+	}
+
+	private static function getPersistedOverrideValue()
+	{
+		$opts = self::getOptions();
+
+		switch ($opts['state_method']) {
+			case 'c':
+				return isset($_COOKIE[$opts['state_key']]) ? $_COOKIE[$opts['state_key']] : null;
+			default:
+				return isset($_GET[$opts['state_key']]) ? $_GET[$opts['state_key']] : null;
+		}
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
+	//	Link handling hooks for when running in QueryString persistence mode
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public static function passPermalinkState($link, $unused1 = null, $unused2 = null, $unused3 = null)
+	{
+		$override = self::getPersistedOverrideValue();
+		if ($override) {
+			$opts = self::getOptions();
+			return add_query_arg($opts['state_key'], $override, $link);
+		}
+		return $link;
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------------
