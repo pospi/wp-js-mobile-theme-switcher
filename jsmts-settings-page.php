@@ -43,7 +43,7 @@ natcasesort($themes);
 	<blockquote>
 		These settings determine the way in which the mobile theme is persisted between page views.
 		Using URL parameters has greatest compatibility, but may require additional coding in your theme's URL handling methods to persist values correctly without requiring re-detection. Use this method if you have advanced pre-Wordpress caching mechanisms on your server, for example WPEngine's EverCache.
-		Cookies have the widest support otherwise, whilst sessions will require that your server has PHP session handling enabled (this is not utilised by Wordpress by default, and is often disabled on specialised hosting).
+		Cookies have the widest support otherwise, and should work on all standard hosting where requests are reliably handled by Wordpress itself.
 	</blockquote>
 <p>
 	<label for="jsmts_state_method">
@@ -51,7 +51,6 @@ natcasesort($themes);
 		<select name="state_method" id="jsmts_state_method">
 			<option value="qs"<?php selected('qs', $options['state_method']); ?>>URL parameters</option>
 			<option value="c"<?php selected('c', $options['state_method']); ?>>Cookies</option>
-			<option value="s"<?php selected('s', $options['state_method']); ?>>Sessions</option>
 		</select>
 	</label>
 </p>
