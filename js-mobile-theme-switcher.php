@@ -11,6 +11,9 @@ Version: 1.0
 /**
  * Mobile theme switcher main plugin class namespace
  *
+ * :TODO:
+ * - implement other theme state methods (sessions, cookies, ...)
+ *
  * @author	Sam Pospischil <pospi@spadgos.com>
  * @since	5 Jun 2013
  */
@@ -39,7 +42,8 @@ abstract class JSMobileThemeSwitcher
 		add_action('admin_menu', array($cls, 'setupAdminScreens'));
 		add_action('load-appearance_page_js-mobile-themes', array($cls, 'handleOptions'));
 
-		// uninstall hook to cleanup options
+		// uninstall & installation hooks
+		register_activation_hook(__FILE__, array($cls, 'runInstall'));
 		register_uninstall_hook(__FILE__, array($cls, 'runUninstall'));
 	}
 
@@ -60,7 +64,9 @@ abstract class JSMobileThemeSwitcher
 		<script type="text/javascript">
 			var JSMTS = {
 				check_mobile : <?php echo $opts['mobile_theme'] ? 'true' : 'false'; ?>,
-				check_tablet : <?php echo $opts['tablet_theme'] ? 'true' : 'false'; ?>
+				check_tablet : <?php echo $opts['tablet_theme'] ? 'true' : 'false'; ?>,
+				method : '<?php echo $opts['state_method']; ?>',
+				key : '<?php echo $opts['state_key']; ?>'
 			};
 		</script>
 		<?php
@@ -88,8 +94,10 @@ abstract class JSMobileThemeSwitcher
 	{
 		if (!isset(self::$options)) {
 			self::$options = array(
-				'mobile_theme' => get_option('jsmts_mobile_theme'),
-				'tablet_theme' => get_option('jsmts_tablet_theme'),
+				'mobile_theme'	=> get_option('jsmts_mobile_theme'),
+				'tablet_theme'	=> get_option('jsmts_tablet_theme'),
+				'state_method'	=> get_option('jsmts_state_method'),
+				'state_key'		=> get_option('jsmts_state_key'),
 			);
 		}
 		return self::$options;
@@ -130,6 +138,8 @@ abstract class JSMobileThemeSwitcher
 		if (!empty($_POST)) {
 			update_option('jsmts_mobile_theme', empty($_POST['mobile_theme']) ? false : $_POST['mobile_theme']);
 			update_option('jsmts_tablet_theme', empty($_POST['tablet_theme']) ? false : $_POST['tablet_theme']);
+			update_option('jsmts_state_method', $_POST['state_method']);
+			update_option('jsmts_state_key', $_POST['state_key']);
 
 			add_action('admin_notices', array(get_class(), 'handleUpdateNotice'));
 		}
@@ -140,10 +150,18 @@ abstract class JSMobileThemeSwitcher
 		echo '<div class="updated"><p>Settings saved.</p></div>';
 	}
 
+	public static function runInstall()
+	{
+		update_option('jsmts_state_method', 'qs');
+		update_option('jsmts_state_key', 'v');
+	}
+
 	public static function runUninstall()
 	{
 		delete_option('jsmts_mobile_theme');
 		delete_option('jsmts_tablet_theme');
+		delete_option('jsmts_state_method');
+		delete_option('jsmts_state_key');
 	}
 }
 JSMobileThemeSwitcher::init();
