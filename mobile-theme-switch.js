@@ -80,9 +80,9 @@
 				unset = typeof qs[JSMTS.key] == 'undefined';
 
 			if (JSMTS.check_mobile && IS_MOBILE && (unset || qs[JSMTS.key] != FLAG_MOBILE)) {
-				window.location.href = appendQuery(window.location.href, JSMTS.key, FLAG_MOBILE);
+				window.location.href = appendQuery(removeQuery(window.location.href, JSMTS.key), JSMTS.key, FLAG_MOBILE);
 			} else if (JSMTS.check_tablet && IS_TABLET && (unset || qs[JSMTS.key] != FLAG_TABLET)) {
-				window.location.href = appendQuery(window.location.href, JSMTS.key, FLAG_TABLET);
+				window.location.href = appendQuery(removeQuery(window.location.href, JSMTS.key), JSMTS.key, FLAG_TABLET);
 			} else if (!unset && !(JSMTS.check_mobile && IS_MOBILE) && !(JSMTS.check_tablet && IS_TABLET)) {
 				window.location.href = removeQuery(window.location.href, JSMTS.key);
 			}
