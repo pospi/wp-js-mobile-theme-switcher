@@ -12,7 +12,7 @@ Version: 1.0
  * Mobile theme switcher main plugin class namespace
  *
  * :TODO:
- * - implement other theme state methods (sessions, cookies, ...)
+ * - implement other theme state methods (cookies, localstorage ...)
  *
  * @author	Sam Pospischil <pospi@spadgos.com>
  * @since	5 Jun 2013
@@ -23,6 +23,10 @@ abstract class JSMobileThemeSwitcher
 
 	private static $options;
 	private static $themes;
+
+	const FLAG_MOBILE = 'm';
+	const FLAG_TABLET = 't';
+	const FLAG_DESKTOP = 'd';
 
 	public static function init()
 	{
@@ -76,14 +80,74 @@ abstract class JSMobileThemeSwitcher
 	{
 		$opts = self::getOptions();
 
-		return $template;
+		// find the theme override (if any)
+		$theme = self::getOverriddenTheme();
+		if (!$theme) {
+			return $template;
+		}
+
+		// check for child theme and return parent's template if there is one
+		if ($theme['Template'] != "") {
+			return $theme['Template'];
+		}
+		return $theme['Stylesheet'];
 	}
 
 	public static function handleStylesheet($stylesheet)
 	{
 		$opts = self::getOptions();
 
-		return $stylesheet;
+		// find the theme override (if any)
+		$theme = self::getOverriddenTheme();
+		if (!$theme) {
+			return $stylesheet;
+		}
+
+		return $theme['Stylesheet'];
+	}
+
+	private static function getOverriddenTheme()
+	{
+		$opts = self::getOptions();
+
+		// abort early if we have nothing to do
+		if (!$opts['mobile_theme'] && !$opts['tablet_theme']) {
+			return false;
+		}
+
+		// check to see if we're overriding the default theme
+		switch ($opts['state_method']) {
+			case 'c':
+				$themeOverride = isset($_COOKIE[$opts['state_key']]) ? $_COOKIE[$opts['state_key']] : null;
+				break;
+			default:
+				$themeOverride = isset($_GET[$opts['state_key']]) ? $_GET[$opts['state_key']] : null;
+				break;
+		}
+		switch ($themeOverride) {
+			case self::FLAG_MOBILE:
+				$themeOverride = $opts['mobile_theme'];
+				break;
+			case self::FLAG_TABLET:
+				$themeOverride = $opts['tablet_theme'];
+				break;
+			default:
+				$themeOverride = null;
+				break;
+		}
+
+		// if no device-specific override detected, nothing to do
+		if (!$themeOverride) {
+			return false;
+		}
+
+		// check if the theme we've specified is still installed (paranoia)
+		$themes = self::getAvailableThemes();
+		if (!isset($themes[$themeOverride])) {
+			return false;
+		}
+
+		return $themes[$themeOverride];
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------------
