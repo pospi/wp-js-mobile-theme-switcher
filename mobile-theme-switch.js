@@ -4,6 +4,40 @@
 		return;
 	}
 
+	var FLAG_MOBILE = 'm',
+		FLAG_TABLET = 't',
+		FLAG_DESKTOP = 'd';
+
+	// HELPER METHODS
+
+	function getQuery()
+	{
+		var url = window.location.href,
+			query = url.indexOf('?');
+
+		if (query == -1) {
+			return {};
+		}
+
+		var qs = url.substring(query + 1).split('&'),
+			i = 0, l = qs.length,
+			result = {};
+
+		for (; i < l; ++i) {
+			qs[i] = qs[i].split('=');
+			result[qs[i][0]] = qs[i].length > 1 ? decodeURIComponent(qs[i][1]) : true;
+		}
+
+		return result;
+	}
+
+	function appendQuery(str, key, val)
+	{
+		return str + (str.indexOf('?') == -1 ? '?' : '&') + key + '=' + val;
+	}
+
+	// BEGIN MAIN LOGIC - parse useragent to sniff platform
+
 	var IS_MOBILE, IS_TABLET, flags = (function(a){
 		return [
 			// mobile regexes from http://detectmobilebrowsers.com/
@@ -16,5 +50,22 @@
 	IS_MOBILE = flags[0];
 	IS_TABLET = flags[1];
 
-	console.log('mobile: ', IS_MOBILE, 'tablet: ', IS_TABLET);
+	// check whether we are in the correct state, and set it if not
+
+	switch (JSMTS.method) {
+		case 'qs':
+			var qs = getQuery(),
+				unset = typeof qs[JSMTS.key] == 'undefined';
+
+			if (JSMTS.check_mobile && IS_MOBILE && unset) {
+				window.location.href = appendQuery(window.location.href, JSMTS.key, FLAG_MOBILE);
+			} else if (JSMTS.check_tablet && IS_TABLET && unset) {
+				window.location.href = appendQuery(window.location.href, JSMTS.key, FLAG_TABLET);
+			}
+
+			break;
+		case 'c':
+			// :TODO:
+			break;
+	}
 })();
