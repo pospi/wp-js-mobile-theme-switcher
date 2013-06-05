@@ -1,4 +1,9 @@
 (function($) {
+	// if no themes are configured, do nothing
+	if (!JSMTS.check_mobile && !JSMTS.check_tablet) {
+		return;
+	}
+
 	var IS_MOBILE, IS_TABLET, flags = (function(a){
 		return [
 			// mobile regexes from http://detectmobilebrowsers.com/

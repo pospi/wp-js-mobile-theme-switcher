@@ -27,6 +27,7 @@ abstract class JSMobileThemeSwitcher
 
 		// enqueue the javascript
 		add_action('wp_enqueue_scripts', array($cls, 'enqueueJS'));
+		add_action('wp_head', array($cls, 'renderJSVariables'));
 
 		// intercept template and stylesheet rendering with configured themes
 		if (!is_admin()) {
@@ -52,14 +53,31 @@ abstract class JSMobileThemeSwitcher
 		wp_enqueue_script('mts-js');
 	}
 
-	public static function handleTemplate()
+	public static function renderJSVariables()
 	{
 		$opts = self::getOptions();
+		?>
+		<script type="text/javascript">
+			var JSMTS = {
+				check_mobile : <?php echo $opts['mobile_theme'] ? 'true' : 'false'; ?>,
+				check_tablet : <?php echo $opts['tablet_theme'] ? 'true' : 'false'; ?>
+			};
+		</script>
+		<?php
 	}
 
-	public static function handleStylesheet()
+	public static function handleTemplate($template)
 	{
 		$opts = self::getOptions();
+
+		return $template;
+	}
+
+	public static function handleStylesheet($stylesheet)
+	{
+		$opts = self::getOptions();
+
+		return $stylesheet;
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------------
