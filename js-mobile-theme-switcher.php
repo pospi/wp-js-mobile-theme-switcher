@@ -53,7 +53,7 @@ abstract class JSMobileThemeSwitcher
 
 	public static function enqueueJS()
 	{
-		wp_register_script('mts-js', plugins_url('mobile-theme-switch.js', __FILE__), array('jquery'), self::SCRIPT_VERSION, true);
+		wp_register_script('mts-js', plugins_url('mobile-theme-switch.js', __FILE__), array(), self::SCRIPT_VERSION, true);
 		wp_enqueue_script('mts-js');
 	}
 

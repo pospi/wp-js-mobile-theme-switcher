@@ -1,4 +1,4 @@
-(function($) {
+(function() {
 	// if no themes are configured, do nothing
 	if (!JSMTS.check_mobile && !JSMTS.check_tablet) {
 		return;
@@ -17,4 +17,4 @@
 	IS_TABLET = flags[1];
 
 	console.log('mobile: ', IS_MOBILE, 'tablet: ', IS_TABLET);
-})(jQuery);
+})();
