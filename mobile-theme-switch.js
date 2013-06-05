@@ -10,10 +10,9 @@
 
 	// HELPER METHODS
 
-	function getQuery()
+	function getQuery(url)
 	{
-		var url = window.location.href,
-			query = url.indexOf('?');
+		var query = url.indexOf('?');
 
 		if (query == -1) {
 			return {};
@@ -54,7 +53,7 @@
 
 	switch (JSMTS.method) {
 		case 'qs':
-			var qs = getQuery(),
+			var qs = getQuery(window.location.href),
 				unset = typeof qs[JSMTS.key] == 'undefined';
 
 			if (JSMTS.check_mobile && IS_MOBILE && unset) {
