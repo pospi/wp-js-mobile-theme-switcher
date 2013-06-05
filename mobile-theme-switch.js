@@ -35,7 +35,30 @@
 		return str + (str.indexOf('?') == -1 ? '?' : '&') + key + '=' + val;
 	}
 
-	// BEGIN MAIN LOGIC - parse useragent to sniff platform
+	function removeQuery(str, key)
+	{
+		var query = str.indexOf('?');
+
+		if (query == -1) {
+			return str;
+		}
+
+		var params = getQuery(str),
+			k, paramStr = [];
+
+		for (k in params) {
+			if (!params.hasOwnProperty(k) || key == k) {
+				continue;
+			}
+			paramStr.push(k + '=' + params[k]);
+		}
+
+		return str.substring(0, query) + paramStr.join('&');
+	}
+
+	// BEGIN MAIN LOGIC
+
+	// parse useragent to sniff platform
 
 	var IS_MOBILE, IS_TABLET, flags = (function(a){
 		return [
@@ -56,10 +79,12 @@
 			var qs = getQuery(window.location.href),
 				unset = typeof qs[JSMTS.key] == 'undefined';
 
-			if (JSMTS.check_mobile && IS_MOBILE && unset) {
+			if (JSMTS.check_mobile && IS_MOBILE && (unset || qs[JSMTS.key] != FLAG_MOBILE)) {
 				window.location.href = appendQuery(window.location.href, JSMTS.key, FLAG_MOBILE);
-			} else if (JSMTS.check_tablet && IS_TABLET && unset) {
+			} else if (JSMTS.check_tablet && IS_TABLET && (unset || qs[JSMTS.key] != FLAG_TABLET)) {
 				window.location.href = appendQuery(window.location.href, JSMTS.key, FLAG_TABLET);
+			} else if (!unset && !(JSMTS.check_mobile && IS_MOBILE) && !(JSMTS.check_tablet && IS_TABLET)) {
+				window.location.href = removeQuery(window.location.href, JSMTS.key);
 			}
 
 			break;
