@@ -8,21 +8,124 @@ Description: Plugin for serving different themes to mobile websites. Browser det
 Version: 1.0
 */
 
+/**
+ * Mobile theme switcher main plugin class namespace
+ *
+ * @author	Sam Pospischil <pospi@spadgos.com>
+ * @since	5 Jun 2013
+ */
 abstract class JSMobileThemeSwitcher
 {
 	const SCRIPT_VERSION = '1.0';
+
+	private static $options;
+	private static $themes;
 
 	public static function init()
 	{
 		$cls = get_class();
 
+		// enqueue the javascript
 		add_action('wp_enqueue_scripts', array($cls, 'enqueueJS'));
+
+		// intercept template and stylesheet rendering with configured themes
+		if (!is_admin()) {
+			add_filter('template', array($cls, 'handleTemplate'));
+			add_filter('stylesheet', array($cls, 'handleStylesheet'));
+		}
+
+		// add configuration UI
+		add_action('admin_menu', array($cls, 'setupAdminScreens'));
+		add_action('load-appearance_page_js-mobile-themes', array($cls, 'handleOptions'));
+
+		// uninstall hook to cleanup options
+		register_uninstall_hook(__FILE__, array($cls, 'runUninstall'));
 	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
+	//	Plugin functionality
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
 
 	public static function enqueueJS()
 	{
 		wp_register_script('mts-js', plugins_url('mobile-theme-switch.js', __FILE__), array('jquery'), self::SCRIPT_VERSION, true);
 		wp_enqueue_script('mts-js');
+	}
+
+	public static function handleTemplate()
+	{
+		$opts = self::getOptions();
+	}
+
+	public static function handleStylesheet()
+	{
+		$opts = self::getOptions();
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
+	//	Utility methods
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public static function getOptions()
+	{
+		if (!isset(self::$options)) {
+			self::$options = array(
+				'mobile_theme' => get_option('jsmts_mobile_theme'),
+				'tablet_theme' => get_option('jsmts_tablet_theme'),
+			);
+		}
+		return self::$options;
+	}
+
+	public static function getAvailableThemes()
+	{
+		if (isset(self::$themes)) {
+			return self::$themes;
+		}
+
+		if (function_exists('wp_get_themes')) {
+			self::$themes = wp_get_themes();
+		} else {
+			// :NOTE: backwards compatibility for Wordpress < 3.4
+			self::$themes = get_themes();
+		}
+
+		return self::$themes;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
+	//	Administration UI
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+	public static function setupAdminScreens()
+	{
+		add_submenu_page('themes.php',  __('Mobile Themes'), __('Mobile Themes'), 'manage_options', 'js-mobile-themes', array(get_class(), 'drawSettingsPage'));
+	}
+
+	public static function drawSettingsPage()
+	{
+		include('jsmts-settings-page.php');
+	}
+
+	public static function handleOptions()
+	{
+		if (!empty($_POST)) {
+			update_option('jsmts_mobile_theme', empty($_POST['mobile_theme']) ? false : $_POST['mobile_theme']);
+			update_option('jsmts_tablet_theme', empty($_POST['tablet_theme']) ? false : $_POST['tablet_theme']);
+
+			add_action('admin_notices', array(get_class(), 'handleUpdateNotice'));
+		}
+	}
+
+	public static function handleUpdateNotice()
+	{
+		echo '<div class="updated"><p>Settings saved.</p></div>';
+	}
+
+	public static function runUninstall()
+	{
+		delete_option('jsmts_mobile_theme');
+		delete_option('jsmts_tablet_theme');
 	}
 }
 JSMobileThemeSwitcher::init();
