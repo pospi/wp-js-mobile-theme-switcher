@@ -88,6 +88,18 @@
 			}
 
 			break;
+		case 'r':
+			var topLevelUrl = window.location.protocol + '//' + window.location.hostname;
+
+			if (JSMTS.check_mobile && IS_MOBILE && (JSMTS.key.length && topLevelUrl != JSMTS.key)) {
+				window.location.href = JSMTS.key;
+			} else if (JSMTS.check_tablet && IS_TABLET && (JSMTS.key2.length && topLevelUrl != JSMTS.key2)) {
+				window.location.href = JSMTS.key2;
+			} else if (!(JSMTS.check_mobile && IS_MOBILE) && !(JSMTS.check_tablet && IS_TABLET) && (JSMTS.base.length && topLevelUrl != JSMTS.base)) {
+				window.location.href = JSMTS.base;
+			}
+
+			break;
 		case 'c':
 			// :TODO:
 			break;

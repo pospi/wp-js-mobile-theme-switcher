@@ -86,7 +86,10 @@ abstract class JSMobileThemeSwitcher
 				check_mobile : <?php echo $opts['mobile_theme'] ? 'true' : 'false'; ?>,
 				check_tablet : <?php echo $opts['tablet_theme'] ? 'true' : 'false'; ?>,
 				method : '<?php echo $opts['state_method']; ?>',
-				key : '<?php echo $opts['state_key']; ?>'
+				key : '<?php echo $opts['state_key']; ?>',
+				key2 : '<?php echo $opts['state_key2']; ?>',
+				base : '<?php echo get_option('siteurl'); // :IMPORTANT: use option directly to avoid our own filters ?>',
+				canonical : <?php echo ($opts['state_method'] == 'r' && $opts['do_canonical']) ? 1 : 0; ?>
 			};
 		</script>
 		<?php
@@ -167,6 +170,14 @@ abstract class JSMobileThemeSwitcher
 		switch ($opts['state_method']) {
 			case 'c':
 				return isset($_COOKIE[$opts['state_key']]) ? $_COOKIE[$opts['state_key']] : null;
+			case 'r':
+				$hostAndScheme = (is_ssl() ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
+				if ($hostAndScheme == $opts['state_key']) {
+					return self::FLAG_MOBILE;
+				} else if ($hostAndScheme == $opts['state_key2']) {
+					return self::FLAG_TABLET;
+				}
+				return self::FLAG_DESKTOP;
 			default:
 				return isset($_GET[$opts['state_key']]) ? $_GET[$opts['state_key']] : null;
 		}
