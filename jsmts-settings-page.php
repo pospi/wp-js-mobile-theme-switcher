@@ -67,7 +67,7 @@ natcasesort($themes);
 	<label for="jsmts_state_key2">
 		<span>Tablet theme URL</span>:
 		<input type="text" name="state_key2" id="jsmts_state_key2" value="<?php echo esc_attr($options['state_key2']); ?>" /><br />
-		<small>(<span>set the <strong>full URL</strong> to redirect to for viewing the tablet theme, including the <code>http://</code> prefix</span>)</small>
+		<small>(<span>set the domain to redirect to for viewing the tablet theme. This should include the <code>http://</code> or <code>https://</code> prefix but no trailing slashes or paths.)</small>
 	</label>
 </p>
 <p id="canonical">
@@ -104,7 +104,7 @@ natcasesort($themes);
 		switch ($(this).val()) {
 			case 'r':
 				lbl.html('Mobile theme URL');
-				hint.html('set the <strong>full URL</strong> to redirect to for viewing the mobile theme, including the <code>http://</code> prefix');
+				hint.html('set the domain to redirect to for viewing the mobile theme. This should include the <code>http://</code> or <code>https://</code> prefix but no trailing slashes or paths.');
 				canonical.show();
 				secondOpt.show();
 				break;
