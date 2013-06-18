@@ -42,19 +42,40 @@ abstract class JSMobileThemeSwitcher
 			add_filter('stylesheet', array($cls, 'handleStylesheet'));
 		}
 
-		// inject querystring parameter into as many link methods as we can when using it for state
-		if (get_option('jsmts_state_method') == 'qs') {
-			add_filter('post_link', array($cls, 'passPermalinkState'));
-			add_filter('post_type_link', array($cls, 'passPermalinkState'));
-			add_filter('page_link', array($cls, 'passPermalinkState'));
-			add_filter('attachment_link', array($cls, 'passPermalinkState'));
-			add_filter('year_link', array($cls, 'passPermalinkState'));
-			add_filter('month_link', array($cls, 'passPermalinkState'));
-			add_filter('day_link', array($cls, 'passPermalinkState'));
-			add_filter('search_link', array($cls, 'passPermalinkState'));
-			add_filter('post_type_archive_link', array($cls, 'passPermalinkState'));
-			add_filter('get_pagenum_link', array($cls, 'passPermalinkState'));
-			add_filter('get_comments_pagenum_link', array($cls, 'passPermalinkState'));
+		$stateMethod = get_option('jsmts_state_method');
+
+		switch ($stateMethod) {
+			// inject querystring parameter into as many link methods as we can when using it for state
+			case 'qs':
+				add_filter('post_link', array($cls, 'passPermalinkState'));
+				add_filter('post_type_link', array($cls, 'passPermalinkState'));
+				add_filter('page_link', array($cls, 'passPermalinkState'));
+				add_filter('attachment_link', array($cls, 'passPermalinkState'));
+				add_filter('year_link', array($cls, 'passPermalinkState'));
+				add_filter('month_link', array($cls, 'passPermalinkState'));
+				add_filter('day_link', array($cls, 'passPermalinkState'));
+				add_filter('search_link', array($cls, 'passPermalinkState'));
+				add_filter('post_type_archive_link', array($cls, 'passPermalinkState'));
+				add_filter('get_pagenum_link', array($cls, 'passPermalinkState'));
+				add_filter('get_comments_pagenum_link', array($cls, 'passPermalinkState'));
+				break;
+			// alter all site URLs when using domain redirection method
+			case 'r':
+				add_filter('home_url', array($cls, 'alterSiteUrls'), PHP_INT_MAX, 4);
+				add_filter('site_url', array($cls, 'alterSiteUrls'), PHP_INT_MAX, 4);
+
+				if (get_option('jsmts_do_canonical')) {
+					$plugins = get_option('active_plugins');
+					if (in_array('wordpress-seo/wp-seo.php', $plugins)) {
+					// WPSEO COMPATIBILITY
+						add_filter('wpseo_canonical', array($cls, 'alterCanonicalLink'));
+					} else {
+					// DEFAULT: remove standard canonical link attribute generation and do it ourselves
+						remove_action('wp_head', 'rel_canonical');
+						add_action('wp_head', array($cls, 'renderCanonicalLink'));
+					}
+				}
+				break;
 		}
 
 
@@ -195,6 +216,74 @@ abstract class JSMobileThemeSwitcher
 			return add_query_arg($opts['state_key'], $override, $link);
 		}
 		return $link;
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
+	//	URL handling hooks for when running in domain redirect persistence mode
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+	// alter all URLs in site to point to active domain
+	public static function alterSiteUrls($link, $path, $scheme, $blogId)
+	{
+		return self::mungeCanonicalUrl($link);
+	}
+
+	// alter all altered URLs back to main site for canonical tags
+	public static function renderCanonicalLink()
+	{
+		global $wp_the_query;
+
+		if (is_singular() && ($id = $wp_the_query->get_queried_object_id())) {
+			$link = get_permalink($id);
+
+			if ($page = get_query_var('cpage')) {
+				$link = get_comments_pagenum_link($page);
+			}
+		} else {
+			$link = (is_ssl() ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+		}
+
+		echo '<link rel="canonical" href="' . self::mungeCanonicalUrl($link, true) . '" />' . "\n";
+	}
+
+	// alter all altered URLs back to main site for canonical tags
+	public static function alterCanonicalLink($link)
+	{
+		return self::mungeCanonicalUrl($link, true);
+	}
+
+	private static function mungeCanonicalUrl($link, $reverse = false)
+	{
+		$mode = self::getPersistedOverrideValue();
+		$opts = self::getOptions();
+
+		if ($mode == self::FLAG_DESKTOP) {
+			return $link;
+		}
+
+		if ($reverse) {
+			switch ($mode) {
+				case self::FLAG_MOBILE:
+					$search = '@^' . preg_quote($opts['state_key'], '@') . '@i';
+					break;
+				case self::FLAG_TABLET:
+					$search = '@^' . preg_quote($opts['state_key2'], '@') . '@i';
+					break;
+			}
+			$replace = get_option('siteurl');
+		} else {
+			$search = '@^' . preg_quote(get_option('siteurl'), '@') . '@i';
+			switch ($mode) {
+				case self::FLAG_MOBILE:
+					$replace = $opts['state_key'];
+					break;
+				case self::FLAG_TABLET:
+					$replace = $opts['state_key2'];
+					break;
+			}
+		}
+
+		return preg_replace($search, $replace, $link);
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------------
