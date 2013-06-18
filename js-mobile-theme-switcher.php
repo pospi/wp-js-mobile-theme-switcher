@@ -198,6 +198,8 @@ abstract class JSMobileThemeSwitcher
 				'tablet_theme'	=> get_option('jsmts_tablet_theme'),
 				'state_method'	=> get_option('jsmts_state_method'),
 				'state_key'		=> get_option('jsmts_state_key'),
+				'state_key2'	=> get_option('jsmts_state_key2'),
+				'do_canonical'	=> get_option('jsmts_do_canonical'),
 			);
 		}
 		return self::$options;
@@ -240,6 +242,8 @@ abstract class JSMobileThemeSwitcher
 			update_option('jsmts_tablet_theme', empty($_POST['tablet_theme']) ? false : $_POST['tablet_theme']);
 			update_option('jsmts_state_method', $_POST['state_method']);
 			update_option('jsmts_state_key', $_POST['state_key']);
+			update_option('jsmts_state_key2', $_POST['state_key2']);
+			update_option('jsmts_do_canonical', !empty($_POST['do_canonical']));
 
 			add_action('admin_notices', array(get_class(), 'handleUpdateNotice'));
 		}
@@ -262,6 +266,8 @@ abstract class JSMobileThemeSwitcher
 		delete_option('jsmts_tablet_theme');
 		delete_option('jsmts_state_method');
 		delete_option('jsmts_state_key');
+		delete_option('jsmts_state_key2');
+		delete_option('jsmts_do_canonical');
 	}
 }
 JSMobileThemeSwitcher::init();
