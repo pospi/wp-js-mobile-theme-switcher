@@ -79,6 +79,14 @@ natcasesort($themes);
 </p>
 
 <p>
+	<label for="jsmts_do_flag">
+		<input type="checkbox" name="do_flag" id="jsmts_do_flag"<?php if ($options['do_flag']) echo ' checked="checked"'; ?> />
+		<span>Only perform initial redirect</span><br />
+		<small>(<span>When enabled, a cookie is set on the client after performing initial redirection, and subsequent checks are ignored. This allows mobile devices to navigate back to the desktop site, and vice versa.</span>)</small>
+	</label>
+</p>
+
+<p>
 	<input type="submit" name="save" value="Update settings" />
 </p>
 </form>

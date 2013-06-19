@@ -110,7 +110,8 @@ abstract class JSMobileThemeSwitcher
 				key : '<?php echo $opts['state_key']; ?>',
 				key2 : '<?php echo $opts['state_key2']; ?>',
 				base : '<?php echo get_option('siteurl'); // :IMPORTANT: use option directly to avoid our own filters ?>',
-				canonical : <?php echo ($opts['state_method'] == 'r' && $opts['do_canonical']) ? 1 : 0; ?>
+				canonical : <?php echo ($opts['state_method'] == 'r' && $opts['do_canonical']) ? 1 : 0; ?>,
+				set_state : <?php echo $opts['do_flag'] ? 1 : 0; ?>
 			};
 		</script>
 		<?php
@@ -300,6 +301,7 @@ abstract class JSMobileThemeSwitcher
 				'state_key'		=> get_option('jsmts_state_key'),
 				'state_key2'	=> get_option('jsmts_state_key2'),
 				'do_canonical'	=> get_option('jsmts_do_canonical'),
+				'do_flag'		=> get_option('jsmts_do_flag'),
 			);
 		}
 		return self::$options;
@@ -344,6 +346,7 @@ abstract class JSMobileThemeSwitcher
 			update_option('jsmts_state_key', $_POST['state_key']);
 			update_option('jsmts_state_key2', $_POST['state_key2']);
 			update_option('jsmts_do_canonical', !empty($_POST['do_canonical']));
+			update_option('jsmts_do_flag', !empty($_POST['do_flag']));
 
 			add_action('admin_notices', array(get_class(), 'handleUpdateNotice'));
 		}
@@ -358,6 +361,7 @@ abstract class JSMobileThemeSwitcher
 	{
 		update_option('jsmts_state_method', 'qs');
 		update_option('jsmts_state_key', 'v');
+		update_option('jsmts_do_flag', true);
 	}
 
 	public static function runUninstall()
@@ -368,6 +372,7 @@ abstract class JSMobileThemeSwitcher
 		delete_option('jsmts_state_key');
 		delete_option('jsmts_state_key2');
 		delete_option('jsmts_do_canonical');
+		delete_option('jsmts_do_flag');
 	}
 }
 JSMobileThemeSwitcher::init();
