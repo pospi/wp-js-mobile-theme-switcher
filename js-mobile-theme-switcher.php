@@ -82,6 +82,7 @@ abstract class JSMobileThemeSwitcher
 		// add configuration UI
 		add_action('admin_menu', array($cls, 'setupAdminScreens'));
 		add_action('load-appearance_page_js-mobile-themes', array($cls, 'handleOptions'));
+		add_filter('plugin_action_links_' . plugin_basename(__FILE__), array($cls, 'addPluginPageLinks'));
 
 		// uninstall & installation hooks
 		register_activation_hook(__FILE__, array($cls, 'runInstall'));
@@ -355,6 +356,12 @@ abstract class JSMobileThemeSwitcher
 	public static function handleUpdateNotice()
 	{
 		echo '<div class="updated"><p>Settings saved.</p></div>';
+	}
+
+	public static function addPluginPageLinks($links)
+	{
+		array_unshift($links, '<a href="themes.php?page=js-mobile-themes">Settings</a>');
+		return $links;
 	}
 
 	public static function runInstall()
