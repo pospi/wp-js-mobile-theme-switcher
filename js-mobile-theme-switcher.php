@@ -58,6 +58,7 @@ abstract class JSMobileThemeSwitcher
 				add_filter('post_type_archive_link', array($cls, 'passPermalinkState'));
 				add_filter('get_pagenum_link', array($cls, 'passPermalinkState'));
 				add_filter('get_comments_pagenum_link', array($cls, 'passPermalinkState'));
+				add_filter('term_link', array($cls, 'passPermalinkState'));
 				break;
 			// alter all site URLs when using domain redirection method
 			case 'r':
