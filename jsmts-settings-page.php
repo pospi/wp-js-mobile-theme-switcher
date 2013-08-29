@@ -51,7 +51,7 @@ natcasesort($themes);
 		Persist using:
 		<select name="state_method" id="jsmts_state_method">
 			<option value="qs"<?php selected('qs', $options['state_method']); ?>>URL parameters</option>
-			<option value="c"<?php selected('c', $options['state_method']); ?>>Cookies</option>
+			<option value="c"<?php selected('c', $options['state_method']); ?>>Cookies (:TODO:)</option>
 			<option value="r"<?php selected('r', $options['state_method']); ?>>Domain redirect</option>
 		</select>
 	</label>
