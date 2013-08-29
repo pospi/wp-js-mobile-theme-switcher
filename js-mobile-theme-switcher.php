@@ -265,28 +265,94 @@ abstract class JSMobileThemeSwitcher
 		}
 
 		if ($reverse) {
-			switch ($mode) {
-				case self::FLAG_MOBILE:
-					$search = '@^' . preg_quote($opts['state_key'], '@') . '@i';
-					break;
-				case self::FLAG_TABLET:
-					$search = '@^' . preg_quote($opts['state_key2'], '@') . '@i';
-					break;
-			}
-			$replace = get_option('siteurl');
+			list($search, $replace) = self::getURLSearchRegexes($mode, self::FLAG_DESKTOP);
 		} else {
-			$search = '@^' . preg_quote(get_option('siteurl'), '@') . '@i';
-			switch ($mode) {
-				case self::FLAG_MOBILE:
-					$replace = $opts['state_key'];
-					break;
-				case self::FLAG_TABLET:
-					$replace = $opts['state_key2'];
-					break;
-			}
+			list($search, $replace) = self::getURLSearchRegexes(self::FLAG_DESKTOP, $mode);
 		}
 
 		return preg_replace($search, $replace, $link);
+	}
+
+	private static function getURLSearchRegexes($currentMode, $desiredMode)
+	{
+		switch ($currentMode) {
+			case self::FLAG_MOBILE:
+				$search = '@^' . preg_quote($opts['state_key'], '@') . '@i';
+				break;
+			case self::FLAG_TABLET:
+				$search = '@^' . preg_quote($opts['state_key2'], '@') . '@i';
+				break;
+			default:
+				$search = '@^' . preg_quote(get_option('siteurl'), '@') . '@i';
+				break;
+		}
+
+		switch ($desiredMode) {
+			case self::FLAG_MOBILE:
+				$replace = $opts['state_key'];
+				break;
+			case self::FLAG_TABLET:
+				$replace = $opts['state_key2'];
+				break;
+			default:
+				$replace = get_option('siteurl');
+				break;
+		}
+
+		return array($search, $replace);
+	}
+
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
+	//	Useful link modification methods
+	//----------------------------------------------------------------------------------------------------------------------------------------------------
+
+	// each of these takes a *full* URL (that you might get from using home_url(), site_url() et al) and returns an appropriate URL for the site desired.
+	// it is recommended you only use these methods for generating links between different versions of the site. They will also only work if the "only perform initial redirect" option is enabled.
+
+	public static function translateToDesktopURL($url)
+	{
+		$mode = self::getPersistedOverrideValue();
+
+		if ($mode == self::FLAG_DESKTOP) {
+			return $url;
+		}
+		return self::translateURL($mode, self::FLAG_DESKTOP);
+	}
+
+	public static function translateToTabletURL($url)
+	{
+		$mode = self::getPersistedOverrideValue();
+
+		if ($mode == self::FLAG_TABLET || !$opts['tablet_theme']) {
+			return $url;
+		}
+		return self::translateURL($mode, self::FLAG_TABLET);
+	}
+
+	public static function translateToMobileURL($url)
+	{
+		$mode = self::getPersistedOverrideValue();
+
+		if ($mode == self::FLAG_MOBILE || !$opts['mobile_theme']) {
+			return $url;
+		}
+		return self::translateURL($mode, self::FLAG_MOBILE);
+	}
+
+	private static function translateURL($url, $fromState, $toState)
+	{
+		$opts = self::getOptions();
+
+		switch ($opts['state_method']) {
+			case 'c':
+				// :TODO:
+				return $url;
+			case 'r':
+				list($search, $replace) = self::getURLSearchRegexes($fromState, $toState);
+				return preg_replace($search, $replace, $url);
+			default:
+				return add_query_arg($opts['state_key'], $toState, $url);
+		}
 	}
 
 	//----------------------------------------------------------------------------------------------------------------------------------------------------
