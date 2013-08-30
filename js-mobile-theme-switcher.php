@@ -337,7 +337,7 @@ abstract class JSMobileThemeSwitcher
 		if ($mode == self::FLAG_DESKTOP) {
 			return $url;
 		}
-		return self::translateURL($mode, self::FLAG_DESKTOP);
+		return self::translateURL($url, $mode, self::FLAG_DESKTOP);
 	}
 
 	public static function translateToTabletURL($url)
@@ -347,7 +347,7 @@ abstract class JSMobileThemeSwitcher
 		if ($mode == self::FLAG_TABLET || !$opts['tablet_theme']) {
 			return $url;
 		}
-		return self::translateURL($mode, self::FLAG_TABLET);
+		return self::translateURL($url, $mode, self::FLAG_TABLET);
 	}
 
 	public static function translateToMobileURL($url)
@@ -357,7 +357,7 @@ abstract class JSMobileThemeSwitcher
 		if ($mode == self::FLAG_MOBILE || !$opts['mobile_theme']) {
 			return $url;
 		}
-		return self::translateURL($mode, self::FLAG_MOBILE);
+		return self::translateURL($url, $mode, self::FLAG_MOBILE);
 	}
 
 	private static function translateURL($url, $fromState, $toState)
