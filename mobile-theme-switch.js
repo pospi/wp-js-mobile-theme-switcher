@@ -121,11 +121,11 @@
 				unset = typeof qs[JSMTS.key] == 'undefined';
 
 			if (JSMTS.check_mobile && IS_MOBILE && (unset || qs[JSMTS.key] != FLAG_MOBILE)) {
-				window.location.href = appendQuery(removeQuery(window.location.href, JSMTS.key), JSMTS.key, FLAG_MOBILE);
+				window.location.replace(appendQuery(removeQuery(window.location.href, JSMTS.key), JSMTS.key, FLAG_MOBILE));
 			} else if (JSMTS.check_tablet && IS_TABLET && (unset || qs[JSMTS.key] != FLAG_TABLET)) {
-				window.location.href = appendQuery(removeQuery(window.location.href, JSMTS.key), JSMTS.key, FLAG_TABLET);
+				window.location.replace(appendQuery(removeQuery(window.location.href, JSMTS.key), JSMTS.key, FLAG_TABLET));
 			} else if (!unset && !(JSMTS.check_mobile && IS_MOBILE) && !(JSMTS.check_tablet && IS_TABLET)) {
-				window.location.href = removeQuery(window.location.href, JSMTS.key);
+				window.location.replace(removeQuery(window.location.href, JSMTS.key));
 			}
 
 			break;
@@ -133,11 +133,11 @@
 			var topLevelUrl = window.location.protocol + '//' + window.location.hostname;
 
 			if (JSMTS.check_mobile && IS_MOBILE && (JSMTS.key.length && topLevelUrl != JSMTS.key)) {
-				window.location.href = JSMTS.key + window.location.pathname;
+				window.location.replace(JSMTS.key + window.location.pathname);
 			} else if (JSMTS.check_tablet && IS_TABLET && (JSMTS.key2.length && topLevelUrl != JSMTS.key2)) {
-				window.location.href = JSMTS.key2 + window.location.pathname;
+				window.location.replace(JSMTS.key2 + window.location.pathname);
 			} else if (!(JSMTS.check_mobile && IS_MOBILE) && !(JSMTS.check_tablet && IS_TABLET) && (JSMTS.base.length && topLevelUrl != JSMTS.base)) {
-				window.location.href = JSMTS.base + window.location.pathname;
+				window.location.replace(JSMTS.base + window.location.pathname);
 			}
 
 			break;
