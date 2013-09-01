@@ -12,3 +12,4 @@ Theme coding considerations:
 
 * Avoid any hardcoding of URL paths, use the permalink template methods wherever possible.
 * To create links between different versions of the site, use the helper methods `JSMobileThemeSwitcher::translateToDesktopURL()`, `JSMobileThemeSwitcher::translateToTabletURL()` and `JSMobileThemeSwitcher::translateToMobileURL()` to wrap output of normal links.
+* In querystring persistence mode, `home_url()` and `site_url()` are not filtered to keep visitors within the active site. You will have to write code like `JSMobileThemeSwitcher::translateToMobileURL(home_url('/'))` around these methods. All other standard visible content is filtered to adjust link paths as required: you can see what is automatically handled in `JSMobileThemeSwitcher::init()`.
