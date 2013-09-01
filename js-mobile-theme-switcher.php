@@ -59,8 +59,6 @@ abstract class JSMobileThemeSwitcher
 				add_filter('get_pagenum_link', array($cls, 'passPermalinkState'));
 				add_filter('get_comments_pagenum_link', array($cls, 'passPermalinkState'));
 				add_filter('term_link', array($cls, 'passPermalinkState'));
-				add_filter('home_url', array($cls, 'passHomepageState'), PHP_INT_MAX, 4);
-				add_filter('site_url', array($cls, 'passHomepageState'), PHP_INT_MAX, 4);
 				break;
 			// alter all site URLs when using domain redirection method
 			case 'r':
@@ -220,25 +218,6 @@ abstract class JSMobileThemeSwitcher
 			$opts = self::getOptions();
 			return add_query_arg($opts['state_key'], $override, $link);
 		}
-		return $link;
-	}
-
-	public static function passHomepageState($link, $path, $scheme, $blogId)
-	{
-		$path = str_replace('/', '', $path);
-		if ($qPos = strrpos($path, '?')) {
-			$path = substr($path, 0, $qPos);
-		}
-
-		if (!strlen($path)) {
-			// no chars left means this was a direct link to the homepage
-			$override = self::getPersistedOverrideValue();
-			if ($override) {
-				$opts = self::getOptions();
-				return add_query_arg($opts['state_key'], $override, $link);
-			}
-		}
-
 		return $link;
 	}
 
