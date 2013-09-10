@@ -313,9 +313,6 @@ abstract class JSMobileThemeSwitcher
 	{
 		$mode = self::getPersistedOverrideValue();
 
-		if ($mode == self::FLAG_DESKTOP) {
-			return $url;
-		}
 		return self::translateURL($url, $mode, self::FLAG_DESKTOP);
 	}
 
@@ -323,9 +320,6 @@ abstract class JSMobileThemeSwitcher
 	{
 		$mode = self::getPersistedOverrideValue();
 
-		if ($mode == self::FLAG_TABLET || !$opts['tablet_theme']) {
-			return $url;
-		}
 		return self::translateURL($url, $mode, self::FLAG_TABLET);
 	}
 
@@ -333,9 +327,6 @@ abstract class JSMobileThemeSwitcher
 	{
 		$mode = self::getPersistedOverrideValue();
 
-		if ($mode == self::FLAG_MOBILE || !$opts['mobile_theme']) {
-			return $url;
-		}
 		return self::translateURL($url, $mode, self::FLAG_MOBILE);
 	}
 
