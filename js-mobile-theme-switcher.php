@@ -195,7 +195,7 @@ abstract class JSMobileThemeSwitcher
 			case 'c':
 				return isset($_COOKIE[$opts['state_key']]) ? $_COOKIE[$opts['state_key']] : null;
 			case 'r':
-				$hostAndScheme = (is_ssl() ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'];
+				$hostAndScheme = isset($_SERVER['HTTP_HOST']) ? (is_ssl() ? 'https://' : 'http://') . $_SERVER['HTTP_HOST'] : '';
 				if ($hostAndScheme == $opts['state_key']) {
 					return self::FLAG_MOBILE;
 				} else if ($hostAndScheme == $opts['state_key2']) {
