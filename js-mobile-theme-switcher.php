@@ -275,6 +275,8 @@ abstract class JSMobileThemeSwitcher
 
 	private static function getURLSearchRegexes($currentMode, $desiredMode)
 	{
+		$opts = self::getOptions();
+
 		switch ($currentMode) {
 			case self::FLAG_MOBILE:
 				$search = '@^' . preg_quote($opts['state_key'], '@') . '@i';
