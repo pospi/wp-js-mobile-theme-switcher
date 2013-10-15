@@ -54,7 +54,7 @@
 			paramStr.push(k + '=' + params[k]);
 		}
 
-		return str.substring(0, query) + paramStr.join('&');
+		return str.substring(0, query) + (paramStr.length ? '?' + paramStr.join('&') : '');
 	}
 
 	// cookie manipulation methods taken from http://www.quirksmode.org/js/cookies.html
