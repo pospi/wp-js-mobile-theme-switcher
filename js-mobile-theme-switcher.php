@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: JS Mobile Theme Switcher
-Plugin URI: http://mapdigital.com.au/
+Plugin URI: https://github.com/pospi/wp-js-mobile-theme-switcher
 Author: Map Digital
 Author URI: http://mapdigital.com.au/
 Description: Plugin for serving different themes to mobile websites. Browser detection is JavaScript-driven, so this plugin is compatible with WPEngine hosting.
