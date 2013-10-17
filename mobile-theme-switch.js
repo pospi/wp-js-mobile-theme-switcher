@@ -133,11 +133,17 @@
 			var topLevelUrl = window.location.protocol + '//' + window.location.hostname;
 
 			if (JSMTS.check_mobile && IS_MOBILE && (JSMTS.key.length && topLevelUrl != JSMTS.key)) {
-				window.location.replace(JSMTS.key + window.location.pathname);
+				if (topLevelUrl == JSMTS.key2 || topLevelUrl == JSMTS.base) {
+					window.location.replace(JSMTS.key + window.location.pathname);
+				}
 			} else if (JSMTS.check_tablet && IS_TABLET && (JSMTS.key2.length && topLevelUrl != JSMTS.key2)) {
-				window.location.replace(JSMTS.key2 + window.location.pathname);
+				if (topLevelUrl == JSMTS.key || topLevelUrl == JSMTS.base) {
+					window.location.replace(JSMTS.key2 + window.location.pathname);
+				}
 			} else if (!(JSMTS.check_mobile && IS_MOBILE) && !(JSMTS.check_tablet && IS_TABLET) && (JSMTS.base.length && topLevelUrl != JSMTS.base)) {
-				window.location.replace(JSMTS.base + window.location.pathname);
+				if (topLevelUrl == JSMTS.key || topLevelUrl == JSMTS.key2) {
+					window.location.replace(JSMTS.base + window.location.pathname);
+				}
 			}
 
 			break;
