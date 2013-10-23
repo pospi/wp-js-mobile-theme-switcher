@@ -201,7 +201,7 @@
 		}
 
 		// flag a cookie if we have now checked
-		createCookie(CHECKED_COOKIE_NAME, 1, 0);
+		createCookie(CHECKED_COOKIE_NAME, 1, JSMTS.recheck_timeout);
 	}
 
 	// sniff out the platform and active site

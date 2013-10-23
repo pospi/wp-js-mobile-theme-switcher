@@ -114,7 +114,8 @@ abstract class JSMobileThemeSwitcher
 				key2 : '<?php echo $opts['state_key2']; ?>',
 				base : '<?php echo get_option('siteurl'); // :IMPORTANT: use option directly to avoid our own filters ?>',
 				canonical : <?php echo ($opts['state_method'] == 'r' && $opts['do_canonical']) ? 1 : 0; ?>,
-				set_state : <?php echo $opts['do_flag'] ? 1 : 0; ?>
+				set_state : <?php echo $opts['do_flag'] ? 1 : 0; ?>,
+				recheck_timeout : <?php echo isset($opts['flag_timeout']) ? $opts['flag_timeout'] : 0; ?>
 			};
 		</script>
 		<?php
