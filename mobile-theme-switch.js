@@ -40,16 +40,6 @@
 		return !(IS_TABLET || IS_MOBILE);
 	}
 
-	// if no themes are configured, do nothing
-	if (!JSMTS.check_mobile && !JSMTS.check_tablet) {
-		return;
-	}
-
-	var CHECKED_COOKIE_NAME = 'jsmts_checked',
-		FLAG_MOBILE = 'm',
-		FLAG_TABLET = 't',
-		FLAG_DESKTOP = 'd';
-
 	// HELPER METHODS
 
 	function getQuery(url)
@@ -139,6 +129,16 @@
 	};
 
 	// BEGIN MAIN LOGIC
+
+	// if no themes are configured, do nothing
+	if (!JSMTS.check_mobile && !JSMTS.check_tablet) {
+		return;
+	}
+
+	var CHECKED_COOKIE_NAME = 'jsmts_checked',
+		FLAG_MOBILE = 'm',
+		FLAG_TABLET = 't',
+		FLAG_DESKTOP = 'd';
 
 	if (JSMTS.set_state) {
 		// stop processing if we've already checked for a browser this session
