@@ -122,7 +122,8 @@
 
 	function appendQuery(str, key, val)
 	{
-		return str + (str.indexOf('?') == -1 ? '?' : '&') + key + '=' + val;
+		var bits = str.split('#', 2);
+		return bits[0] + (bits[0].indexOf('?') == -1 ? '?' : '&') + key + '=' + val + (typeof bits[1] != 'undefined' ? '#' + bits[1] : '');
 	}
 
 	function removeQuery(str, key)
