@@ -2,7 +2,7 @@
 	// Before doing anything, let's create some API other code can use to make decisions based on platform :D
 	var IS_MOBILE, IS_TABLET, PLATFORM_DETECTED = false;
 
-	JSMTS.detectPlatform = function()
+	function detectPlatform()
 	{
 		if (PLATFORM_DETECTED) {
 			return;
@@ -20,23 +20,23 @@
 		IS_MOBILE = flags[0];
 		IS_TABLET = flags[1];
 		PLATFORM_DETECTED = true;
-	};
+	}
 
 	JSMTS.isMobile = function()
 	{
-		JSMTS.detectPlatform();
+		detectPlatform();
 		return IS_MOBILE;
 	}
 
 	JSMTS.isTablet = function()
 	{
-		JSMTS.detectPlatform();
+		detectPlatform();
 		return IS_TABLET;
 	}
 
 	JSMTS.isDesktop = function()
 	{
-		JSMTS.detectPlatform();
+		detectPlatform();
 		return !(IS_TABLET || IS_MOBILE);
 	}
 
@@ -128,6 +128,16 @@
 		createCookie(name,"",-1);
 	}
 
+	// store these methods into the global API for reuse as well
+	JSMTS.util = {
+		'getQuery' : getQuery,
+		'appendQuery' : appendQuery,
+		'removeQuery' : removeQuery,
+		'createCookie' : createCookie,
+		'readCookie' : readCookie,
+		'eraseCookie' : eraseCookie
+	};
+
 	// BEGIN MAIN LOGIC
 
 	if (JSMTS.set_state) {
@@ -142,7 +152,7 @@
 
 	// parse useragent to sniff platform
 
-	JSMTS.detectPlatform();
+	detectPlatform();
 
 	// check whether we are in the correct state, and set it if not
 
