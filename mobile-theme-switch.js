@@ -1,7 +1,14 @@
 (function() {
-	// Before doing anything, let's create some API other code can use to make decisions based on platform :D
-	var IS_MOBILE, IS_TABLET, PLATFORM_DETECTED = false;
+	// Please note: this whole API assumes the default site you are running is a Desktop version.
 
+	var IS_MOBILE, IS_TABLET, PLATFORM_DETECTED = false,
+		CURRENT_SITE_TYPE,
+		CHECKED_COOKIE_NAME = 'jsmts_checked',
+		FLAG_MOBILE = 'm',
+		FLAG_TABLET = 't',
+		FLAG_DESKTOP = 'd';
+
+	// Before doing anything, let's create some API other code can use to make decisions based on platform :D
 	function detectPlatform()
 	{
 		if (PLATFORM_DETECTED) {
@@ -22,23 +29,74 @@
 		PLATFORM_DETECTED = true;
 	}
 
+	function detectLocation()	// :NOTE: this is re-run on each request, for compatibility with History API location changes
+	{
+		switch (JSMTS.method) {
+			case 'qs':
+				var qs = getQuery(window.location.href),
+					unset = typeof qs[JSMTS.key] == 'undefined';
+
+				if (unset) {
+					CURRENT_SITE_TYPE = FLAG_DESKTOP;
+				} else {
+					CURRENT_SITE_TYPE = qs[JSMTS.key];
+					if (CURRENT_SITE_TYPE != FLAG_MOBILE && CURRENT_SITE_TYPE != FLAG_TABLET) {
+						CURRENT_SITE_TYPE = FLAG_DESKTOP;
+					}
+				}
+				break;
+			case 'r':
+				var topLevelUrl = window.location.protocol + '//' + window.location.hostname;
+
+				if (topLevelUrl == JSMTS.key) {
+					CURRENT_SITE_TYPE = FLAG_MOBILE;
+				} else if (topLevelUrl == JSMTS.key2) {
+					CURRENT_SITE_TYPE = FLAG_TABLET;
+				} else {
+					CURRENT_SITE_TYPE = FLAG_DESKTOP;
+				}
+				break;
+			case 'c':
+				// :TODO:
+				break;
+		}
+	}
+
 	JSMTS.isMobile = function()
 	{
 		detectPlatform();
 		return IS_MOBILE;
-	}
+	};
 
 	JSMTS.isTablet = function()
 	{
 		detectPlatform();
 		return IS_TABLET;
-	}
+	};
 
 	JSMTS.isDesktop = function()
 	{
 		detectPlatform();
 		return !(IS_TABLET || IS_MOBILE);
-	}
+	};
+
+	JSMTS.viewingMobile = function()
+	{
+		detectLocation();
+		return CURRENT_SITE_TYPE == FLAG_MOBILE;
+	};
+
+	JSMTS.viewingTablet = function()
+	{
+		detectLocation();
+		return CURRENT_SITE_TYPE == FLAG_TABLET;
+	};
+
+	JSMTS.viewingDesktop = function()
+	{
+		detectLocation();
+		return CURRENT_SITE_TYPE == FLAG_DESKTOP;
+	};
 
 	// HELPER METHODS
 
@@ -135,11 +193,6 @@
 		return;
 	}
 
-	var CHECKED_COOKIE_NAME = 'jsmts_checked',
-		FLAG_MOBILE = 'm',
-		FLAG_TABLET = 't',
-		FLAG_DESKTOP = 'd';
-
 	if (JSMTS.set_state) {
 		// stop processing if we've already checked for a browser this session
 		if (readCookie(CHECKED_COOKIE_NAME)) {
@@ -150,46 +203,55 @@
 		createCookie(CHECKED_COOKIE_NAME, 1, 0);
 	}
 
-	// parse useragent to sniff platform
+	// sniff out the platform and active site
 
 	detectPlatform();
+	detectLocation();
 
 	// check whether we are in the correct state, and set it if not
 
-	switch (JSMTS.method) {
-		case 'qs':
-			var qs = getQuery(window.location.href),
-				unset = typeof qs[JSMTS.key] == 'undefined';
-
-			if (JSMTS.check_mobile && IS_MOBILE && (unset || qs[JSMTS.key] != FLAG_MOBILE)) {
+	if (JSMTS.check_mobile && IS_MOBILE && CURRENT_SITE_TYPE != FLAG_MOBILE) {
+		switch (JSMTS.method) {
+			case 'qs':
 				window.location.replace(appendQuery(removeQuery(window.location.href, JSMTS.key), JSMTS.key, FLAG_MOBILE));
-			} else if (JSMTS.check_tablet && IS_TABLET && (unset || qs[JSMTS.key] != FLAG_TABLET)) {
+				break;
+			case 'r':
+				window.location.replace(JSMTS.key + window.location.pathname);
+				break;
+			case 'c':
+				// :TODO:
+				break;
+		}
+	} else if (JSMTS.check_tablet && IS_TABLET && CURRENT_SITE_TYPE != FLAG_TABLET) {
+		switch (JSMTS.method) {
+			case 'qs':
 				window.location.replace(appendQuery(removeQuery(window.location.href, JSMTS.key), JSMTS.key, FLAG_TABLET));
-			} else if (!unset && !(JSMTS.check_mobile && IS_MOBILE) && !(JSMTS.check_tablet && IS_TABLET)) {
-				window.location.replace(removeQuery(window.location.href, JSMTS.key));
-			}
-
-			break;
-		case 'r':
-			var topLevelUrl = window.location.protocol + '//' + window.location.hostname;
-
-			if (JSMTS.check_mobile && IS_MOBILE && (JSMTS.key.length && topLevelUrl != JSMTS.key)) {
-				if (topLevelUrl == JSMTS.key2 || topLevelUrl == JSMTS.base) {
-					window.location.replace(JSMTS.key + window.location.pathname);
+				break;
+			case 'r':
+				window.location.replace(JSMTS.key2 + window.location.pathname);
+				break;
+			case 'c':
+				// :TODO:
+				break;
+		}
+	} else if (!(JSMTS.check_mobile && IS_MOBILE) && !(JSMTS.check_tablet && IS_TABLET)) {
+		switch (JSMTS.method) {
+			case 'qs':
+				var qs = getQuery(window.location.href),
+					unset = typeof qs[JSMTS.key] == 'undefined';
+				if (!unset) {
+					window.location.replace(removeQuery(window.location.href, JSMTS.key));
 				}
-			} else if (JSMTS.check_tablet && IS_TABLET && (JSMTS.key2.length && topLevelUrl != JSMTS.key2)) {
-				if (topLevelUrl == JSMTS.key || topLevelUrl == JSMTS.base) {
-					window.location.replace(JSMTS.key2 + window.location.pathname);
-				}
-			} else if (!(JSMTS.check_mobile && IS_MOBILE) && !(JSMTS.check_tablet && IS_TABLET) && (JSMTS.base.length && topLevelUrl != JSMTS.base)) {
-				if (topLevelUrl == JSMTS.key || topLevelUrl == JSMTS.key2) {
+				break;
+			case 'r':
+				var topLevelUrl = window.location.protocol + '//' + window.location.hostname;
+				if (topLevelUrl != JSMTS.base) {
 					window.location.replace(JSMTS.base + window.location.pathname);
 				}
-			}
-
-			break;
-		case 'c':
-			// :TODO:
-			break;
+				break;
+			case 'c':
+				// :TODO:
+				break;
+		}
 	}
 })();
