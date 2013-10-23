@@ -78,11 +78,14 @@ natcasesort($themes);
 	</label>
 </p>
 
-<p>
-	<label for="jsmts_do_flag">
-		<input type="checkbox" name="do_flag" id="jsmts_do_flag"<?php if ($options['do_flag']) echo ' checked="checked"'; ?> />
-		<span>Only perform initial redirect</span><br />
-		<small>(<span>When enabled, a cookie is set on the client after performing initial redirection, and subsequent checks are ignored. This allows mobile devices to navigate back to the desktop site, and vice versa.</span>)</small>
+<p id="rechecking">
+	<span>Re-check location:</span><br />
+	<label><input type="radio" name="check_type" value="always"<?php if (!$options['do_flag']) echo ' checked="checked"'; ?> /> On every page view</label><br />
+	<label><input type="radio" name="check_type" value="closed"<?php if ($options['do_flag'] && !$options['flag_timeout']) echo ' checked="checked"'; ?> /> After the browser is closed</label><br />
+	<label><input type="radio" name="check_type" value="timed"<?php if ($options['do_flag'] && $options['flag_timeout']) echo ' checked="checked"'; ?> /> At intervals</label><br />
+	<label id="checkinterval">
+		<span>Time between checks (min)</span>:
+		<input type="text" name="flag_timeout" id="jsmts_flag_timeout"<?php if ($options['flag_timeout']) echo ' value="'.$options['flag_timeout'].'"'; ?> />
 	</label>
 </p>
 
@@ -98,10 +101,21 @@ natcasesort($themes);
 	#jsmts-settings blockquote {
 		color: #999;
 	}
+	#rechecking label {
+		margin-left: 2em;
+	}
 </style>
 
 <script type="text/javascript">
 (function($) {
+	function isTimeoutChecking(timed) {
+		if (timed) {
+			$('#checkinterval').show();
+		} else {
+			$('#checkinterval').hide();
+		}
+	}
+
 	// option hints & labels
 	$('#jsmts_state_method').change(function() {
 		var lbl = $('#skey_name'),
@@ -126,6 +140,11 @@ natcasesort($themes);
 				break;
 		}
 	}).change();	// set initial state
+
+	$('#rechecking input[type=radio]').click(function() {
+		isTimeoutChecking($('#rechecking input[type=radio]:checked').val() == 'timed');
+	});
+	isTimeoutChecking($('#rechecking input[type=radio]:checked').val() == 'timed');
 })(jQuery);
 </script>
 <?php

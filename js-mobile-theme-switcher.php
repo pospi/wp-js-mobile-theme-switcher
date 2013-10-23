@@ -364,6 +364,7 @@ abstract class JSMobileThemeSwitcher
 				'state_key2'	=> get_option('jsmts_state_key2'),
 				'do_canonical'	=> get_option('jsmts_do_canonical'),
 				'do_flag'		=> get_option('jsmts_do_flag'),
+				'flag_timeout'	=> get_option('jsmts_flag_timeout'),
 			);
 		}
 		return self::$options;
@@ -408,7 +409,16 @@ abstract class JSMobileThemeSwitcher
 			update_option('jsmts_state_key', $_POST['state_key']);
 			update_option('jsmts_state_key2', $_POST['state_key2']);
 			update_option('jsmts_do_canonical', !empty($_POST['do_canonical']));
-			update_option('jsmts_do_flag', !empty($_POST['do_flag']));
+
+			$doCheckFlag = $_POST['check_type'] != 'always';
+			update_option('jsmts_do_flag', (int)$doCheckFlag);
+			if ($doCheckFlag) {
+				if ($_POST['check_type'] == 'closed') {
+					update_option('jsmts_flag_timeout', 0);
+				} else {
+					update_option('jsmts_flag_timeout', $_POST['flag_timeout']);
+				}
+			}
 
 			add_action('admin_notices', array(get_class(), 'handleUpdateNotice'));
 		}
@@ -430,6 +440,7 @@ abstract class JSMobileThemeSwitcher
 		update_option('jsmts_state_method', 'qs');
 		update_option('jsmts_state_key', 'v');
 		update_option('jsmts_do_flag', true);
+		update_option('jsmts_flag_timeout', 0);
 	}
 
 	public static function runUninstall()
@@ -441,6 +452,7 @@ abstract class JSMobileThemeSwitcher
 		delete_option('jsmts_state_key2');
 		delete_option('jsmts_do_canonical');
 		delete_option('jsmts_do_flag');
+		delete_option('jsmts_flag_timeout');
 	}
 }
 JSMobileThemeSwitcher::init();
